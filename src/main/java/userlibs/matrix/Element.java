@@ -1,13 +1,17 @@
 package userlibs.matrix;
 
+import userlibs.exceptions.matrix.ElementTypeException;
+
 public interface Element {
 
-	Element plus(Element e);
+	static Element plus(Element a, Element b) throws ElementTypeException {
+		return null;
+	}
 
-	Element times(Element e);
+	static Element times(Element a, Element b) throws ElementTypeException {
+		return null;
+	}
 
-	Element additiveIdentity();
-
-	Element multiplicativeIdentity();
+	boolean equals(Element e);
 
 }

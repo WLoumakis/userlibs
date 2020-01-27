@@ -1,10 +1,11 @@
 package userlibs.matrix;
 
+import userlibs.exceptions.matrix.ElementTypeException;
 import userlibs.exceptions.matrix.MatrixDimensionMismatchException;
 
 import static java.lang.Math.log;
 
-public class Matrix {
+public class Matrix implements Element {
 
 	private Element[/*Rows*/][/*Columns*/] elements;
 
@@ -17,27 +18,46 @@ public class Matrix {
 	}
 
 	/**
-	 * Adds two matrices together via the
-	 * @param A
-	 * @param B
-	 * @return
-	 * @throws MatrixDimensionMismatchException
+	 * Adds two matrices together.
+	 *
+	 * @param A the first matrix
+	 * @param B the second matrix
+	 * @return the resultant sum matrix
+	 * @throws MatrixDimensionMismatchException if the two matrices' dimensions are not the same
+	 * @throws ElementTypeException if the two matrices' elements are not the same type
 	 */
-	public static Matrix add(Matrix A, Matrix B) throws MatrixDimensionMismatchException {
+	public static Matrix plus(Matrix A, Matrix B) throws MatrixDimensionMismatchException, ElementTypeException {
 		if (!haveSameDimension(A, B))
 			throw new MatrixDimensionMismatchException("Matrices must have the same dimensions when adding!");
+		if (A.get(0, 0).getClass() != B.get(0, 0).getClass())
+			throw new ElementTypeException("Cannot add matrices with different types of Elements!");
 		int numRows = getNumRows(A);
 		int numCols = getNumColumns(A);
 
 		Element[][] newElements = new Element[numRows][numCols];
 
-		for (int i = 0; i < numRows; i++) {
-			for (int j = 0; j < numCols; j++) {
-				//TODO: add functionality for Matrix add
-			}
-		}
+		for (int i = 0; i < numRows; i++)
+			for (int j = 0; j < numCols; j++)
+				newElements[i][j] = A.get(0,0).getClass().plus(A.get(i, j), B.get(i, j)); //TODO: Figure out how to use the runtime static method based on runtime types
 
 		return new Matrix(newElements);
+	}
+
+	/**
+	 * Gets the element at row i, column j.
+	 *
+	 * @param i the row
+	 * @param j the column
+	 * @return the Element at (i, j) | null if an error occurred
+	 */
+	public Element get(int i, int j) {
+		Element ret = null;
+		try {
+			ret = elements[i][j];
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 	/**
@@ -110,6 +130,22 @@ public class Matrix {
 
 	private static boolean isPowerOfTwo(int n) {
 		return n > 0 && (n & n - 1) == 0;
+	}
+
+	@Override
+	public boolean equals(Element e) {
+		if (!(e instanceof Matrix))
+			return false;
+
+		Matrix A = (Matrix) e;
+		if (getNumRows(this) != getNumRows(A) && getNumColumns(this) != getNumColumns(A))
+			return false;
+
+		for (int i = 0; i < getNumRows(this); i++)
+			for (int j = 0; j < getNumColumns(this); i++)
+				if (!this.get(i, j).equals(A.get(i, j)))
+					return false;
+		return true;
 	}
 
 }
